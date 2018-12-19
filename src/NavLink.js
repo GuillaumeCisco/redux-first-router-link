@@ -37,7 +37,7 @@ type OwnProps = {
 
 type Props = {
   dispatch: Function,
-  pathname: string
+  location: any
 } & OwnProps
 
 type Context = {
@@ -48,7 +48,7 @@ const NavLink = (
   {
     to,
     href,
-    pathname,
+    location,
     className,
     style,
     activeClassName = 'active',
@@ -58,18 +58,16 @@ const NavLink = (
     strict,
     isActive,
     ...props
-  }: Props,
-  { store }: Context
+  }: Props
 ) => {
   to = href || to
 
   const options = getOptions()
   const basename = options.basename ? options.basename : ''
 
-  const location = selectLocationState(store.getState())
   const path = toUrl(to, location.routesMap).split('?')[0]
 
-  const match = matchPath(pathname, {
+  const match = matchPath(location.pathname, {
     path: stripBasename(path, basename),
     exact,
     strict
@@ -89,6 +87,7 @@ const NavLink = (
       className={combinedClassName}
       style={combinedStyle}
       aria-current={active && ariaCurrent}
+      routesMap={location.routesMap}
       {...props}
     />
   )
@@ -98,7 +97,7 @@ NavLink.contextTypes = {
   store: PropTypes.object.isRequired
 }
 
-const mapState = state => ({ pathname: selectLocationState(state).pathname })
+const mapState = state => ({ location: selectLocationState(state) })
 const connector: Connector<OwnProps, Props> = connect(mapState)
 
 // $FlowIgnore
